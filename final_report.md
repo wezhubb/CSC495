@@ -307,7 +307,7 @@ True Negative: 451,
  ```
 
 ### Correction using Combined Algorithm
- &nbsp;&nbsp;&nbsp;&nbsp; We will first perform out alogrithm with both methods.
+ &nbsp;&nbsp;&nbsp;&nbsp; We will then perform our alogrithm with both methods.
  ```
 pair = {}
 for item in develop_data:
