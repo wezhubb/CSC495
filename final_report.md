@@ -11,11 +11,11 @@
 ***
 # Introduction
 
-&nbsp;&nbsp;&nbsp;&nbsp; In the current database for the IMPACT pharmacogenetics study at the Centre for Addiction and Mental Health (CAMH), the research analysts manually recorded prescriptions for research patients. However, the manual entry of medication names resulted in errors, such as misspellings and incorrect formats. These errors could complicate future data interpretation, potentially compromising our ability for data analyses.  From an initial survey of the medications that were entered into the IMPACT database, there were approximately 10,000 misspelt medication names, and while most of these errors were easily recognizable by humans, manually correcting them would be time-consuming, inefficient, and could potentially lead to additional errors. In order to mitigate this challenge and ensure the accuracy and reliability of medication data within the IMPACT database, it is imperative to develop an auto-correction algorithm that would correct existing misspelt medication names. This algorithm would significantly reduce the time and effort required for manual correction. Moreover, we would be able to trace back to the original entries if any additional errors were found in the future.  Further, setup for the auto-correction databank that will be used by the auto-correction algorithm would only require medication information without personal health or identifying information of the research participants, which protects sensitive information. 
+&nbsp;&nbsp;&nbsp;&nbsp; In the current database for the Individualized Medicine: Pharmacogenetics Assessment and Clinical Treatment (IMPACT) pharmacogenetics study at the Centre for Addiction and Mental Health (CAMH), the research analysts manually recorded prescriptions for research patients. However, the manual entry of medication names resulted in errors, such as misspellings and incorrect formats. These errors could complicate future data interpretation, potentially compromising our ability for data analyses.  From an initial survey of the medications that were entered into the IMPACT database, there were approximately 10,000 misspelt medication names, and while most of these errors were easily recognizable by humans, manually correcting them would be time-consuming, inefficient, and could potentially lead to additional errors. In order to mitigate this challenge and ensure the accuracy and reliability of medication data within the IMPACT database, it is imperative to develop an auto-correction algorithm that would correct existing misspelt medication names. This algorithm would significantly reduce the time and effort required for manual correction. Moreover, we would be able to trace back to the original entries if any additional errors were found in the future.  Further, setup for the auto-correction databank that will be used by the auto-correction algorithm would only require medication information without personal health or identifying information of the research participants, which protects sensitive information. 
 
 &nbsp;&nbsp;&nbsp;&nbsp; To summarize our current progress in solving this problem accomplished in the previous course CSC494, we employed a standard medication word bank as a reference for correcting misspelt words. This word bank was derived from the psychiatric drug bank within CAMH, and a general bank sourced from Drug Bank. For the misspelt prescription, we break down each medication into individual words using the Natural Language Toolkit (NLTK) package (Bird et al, 2009). Then for each of the individual words, we compared each word against each standard medication in the medication bank to identify and correct misspelt entries.
 
-&nbsp;&nbsp;&nbsp;&nbsp; The method used to quantify the similarity between two words is the ratio method from the FuzzyWuzzy package (Mouselimis 2021). The method used edit distance (also known as Levenshtein distance) as the fundamental concept, which is a measure of the minimum number of single-character edits required to transform one string into another (Levenshtein, 1965). The algorithm's performance using edit distance is optimal at a threshold of around 80, achieving an accuracy rate of 72.5%. We also plot the ROC curve and calculate AUC, both results support the optimal threshold with a balanced trade-off between false positive and true positive rate. 
+&nbsp;&nbsp;&nbsp;&nbsp; The method used to quantify the similarity between two words is the ratio method from the FuzzyyWuzzy package (Mouselimis 2021). The method used edit distance (also known as Levenshtein distance) as the fundamental concept, which is a measure of the minimum number of single-character edits required to transform one string into another (Levenshtein, 1965). The algorithm's performance using edit distance is optimal at a threshold of around 80, achieving an accuracy rate of 72.5%. We also plot the ROC curve and calculate AUC, both results support the optimal threshold with a balanced trade-off between false positive and true positive rate. 
 
 &nbsp;&nbsp;&nbsp;&nbsp; Although we had achieved an accuracy of 72.5%, we still question whether it would be possible to achieve a better accuracy.
 
@@ -23,7 +23,7 @@
 
 &nbsp;&nbsp;&nbsp;&nbsp; Soundex is a rule-based phonetic algorithm used to encode words on their English pronunciation. Soundex will assign a four-digit code for each word, a letter followed by three numbers, representing the word’s phonetic sound. Words that have similar pronunciation will receive the same or similar Soundex codes (Russell and Odell, 1918). In the previous example, "Smith" and "Smythe” would have the same code of S530. Besides Soundex, another rule-based phonetic algorithm we would apply is Metaphone. Like Soundex, Metaphone generates a phonetic representation of a word based on its sound. However, the phonetic representation Metaphone generated is not limited to the length of four but varies depending on the pronunciation of the word. The Metaphone algorithm is an improvement on Soundex and includes the consideration of common prefixes, vowels, consonants, and silent letters (Lawrence 1990). In the previous example, "Smith" and "Smythe” would have the same code of SM0.	
 
-&nbsp;&nbsp;&nbsp;&nbsp; In the pursuit of refining our auto-correction algorithm, our objective is to choose the method that yields the highest accuracy rate for autocorrection out of all possible methods: fuzzy, Soundex, Metaphone, and a combination of phonetic with fuzzy matching techniques. This integration aims to produce an algorithm capable of correcting misspelt medication names with a higher level of accuracy. By exploring the synergy between phonetic and string-based approaches, we anticipate achieving a more comprehensive solution to the challenges posed by medication name misspellings in the IMPACT database.
+&nbsp;&nbsp;&nbsp;&nbsp; In the pursuit of refining our auto-correction algorithm, our objective is to choose the method that yields the highest accuracy rate for autocorrection out of all possible methods: Fuzzy, Soundex, Metaphone, and a combination of phonetic with Fuzzy matching techniques. This integration aims to produce an algorithm capable of correcting misspelt medication names with a higher level of accuracy. By exploring the synergy between phonetic and string-based approaches, we anticipate achieving a more comprehensive solution to the challenges posed by medication name misspellings in the IMPACT database.
 
 # Method
 
@@ -36,22 +36,22 @@
 ## Phonetic Algorithm Viability
 &nbsp;&nbsp;&nbsp;&nbsp; We will test whether the Soundex and Metaphone algorithm suits this project by examining how many medication names in medication banks have the same Soundex/Metaphone code. If the number of medications that have the same Soundex/Metaphone code is large, then we will consider applying another phonetic method.
 
-## Correction use Phonetic algorithm only
+## Correction using Phonetic Algorithm only
 &nbsp;&nbsp;&nbsp;&nbsp; We will implement the phonetic algorithm from the Python Jellyfish package [version 1.0.3] using the Soundex method and Metaphone method respectively. For phonetic algorithms, we will get a unique phonetic representation code for each word. This code is then compared to the codes of each word in the standard bank for both common and generic medication names. A match is identified only if the word pairs share the same code generated by either of the two algorithms. In cases where more than one standard word is paired with a misspelt word, a human decision-making step is introduced to resolve potential ambiguities. Notably, if a word fails to find a match with any word in the standard bank, it remains uncorrected.
 
-## Correction use Phonetic combine with fuzz
-&nbsp;&nbsp;&nbsp;&nbsp; Each tokenized word will undergo a combination of the phonetic algorithm and Fuzz methods to assess the agreement between the two algorithms. We will examine the performance of the tokenized word pass either of the two algorithms. Firstly, we would examine whether there is a match using a phonetic algorithm. If there is a match, then we would not look at the fuzz algorithm and pair the tokenized word and standard word directly. However, if there is not a match, then we would use the fuzz method to find a match. If there is not a match for both methods, then the would will remain uncorrected.
-<!-- We will first examine the performance of whether the tokenized word pass both phonetic and fuzz method.
-A match will be identified if both the Fuzz Method and the phonetic Method agree, meaning the Fuzz score surpasses a predefined threshold, and the phonetic code output indicates a match with the corresponding standard medication name. <span style="color: red;">check algo details</span> -->
-<!-- In cases where the algorithms exhibit disagreement but one of them produces a high score—either the Fuzz score surpasses the threshold, or the Soundex/Metaphone output indicates a match—human intervention becomes imperative for a manual decision. If the algorithms do not agrees, and both scores are low, the input word pair is categorized as not matched.  -->
+## Correction using Phonetic Combined with Fuzzy
+&nbsp;&nbsp;&nbsp;&nbsp; Each tokenized word will undergo a combination of the phonetic algorithm and Fuzzy methods to assess the agreement between the two algorithms. We will examine the performance of the tokenized word pass either of the two algorithms. Firstly, we would examine whether there is a match using a phonetic algorithm. If there is a match, then we would not look at the Fuzzy algorithm and pair the tokenized word and standard word directly. However, if there is not a match, then we would use the Fuzzy method to find a match. If there is not a match for both methods, then the would will remain uncorrected.
+<!-- We will first examine the performance of whether the tokenized word pass both phonetic and Fuzzy method.
+A match will be identified if both the Fuzzy Method and the phonetic Method agree, meaning the Fuzzy score surpasses a predefined threshold, and the phonetic code output indicates a match with the corresponding standard medication name. <span style="color: red;">check algo details</span> -->
+<!-- In cases where the algorithms exhibit disagreement but one of them produces a high score—either the Fuzzy score surpasses the threshold, or the Soundex/Metaphone output indicates a match—human intervention becomes imperative for a manual decision. If the algorithms do not agrees, and both scores are low, the input word pair is categorized as not matched.  -->
 
 <!-- 
 ## Testing
 To evaluate the program's performance, a thorough testing phase will be conducted. Corrections generated by our algorithms were compared against human-provided answers for each corrected phrase. A match between the two indicated a correct correction, while discrepancies classified the correction as incorrect. The testing program will output the total number of correct and incorrect corrections for each algorithm.  <span style="color: red;">add more on testing details</span> -->
 
-# Coding and Result
+# Coding and Results
 
-## Load standard medication bank
+## Load Standard Medication Bank
 &nbsp;&nbsp;&nbsp;&nbsp; The first step to developing the algorithm would be to load in the standard medication bank. This bank serves as the basis of our algorithm.
 ```
 def load_bank() -> list:
@@ -140,12 +140,12 @@ for key in meta_to_med:
 print(crush_soundex) # the resut we got is 2282
 print(crush_meta) # the resut we got is 494
 ```
-&nbsp;&nbsp;&nbsp;&nbsp; From the result, we can see the metaphone method has less crush (494) than the soudex method (2282). Thus, we would be using the phonetic method Metaphone in the remaining of the algorithm.
+&nbsp;&nbsp;&nbsp;&nbsp; From the result, we can see the metaphone method has less clash (494) than the soudex method (2282). Thus, we would be using the phonetic method Metaphone in the remaining of the algorithm.
 
-## Matching word by phonetic algorithm 
+## Matching Word by Ahonetic Algorithm 
 &nbsp;&nbsp;&nbsp;&nbsp; The next step will be to develop functions to match two words by phonetic (Metaphone) code. 
 
-### Develop phonetic code bank
+### Develop Phonetic Code Bank
 &nbsp;&nbsp;&nbsp;&nbsp; The first step would be to develop a metaphone code bank for each of the words in the standard medication bank. The reason for developing this bank is that we could easily access the standard medication with its phonetic code. For example, we have misspelt words with the phone code **MLPG**. If we want to find a match with this misspelt word in the standard bank, we just need to search for the code **MLPG** in the standard bank.
 
 ```
@@ -184,7 +184,7 @@ def load_phonetic_bank(psy_bank, gen_bank) -> Dict:
 ```
 &nbsp;&nbsp;&nbsp;&nbsp; From the above output, we can see that our phonetic bank is in the data format of {phonetic code: {medication name: [list of common name]}}, where the key for the outer dictionary is the phonetic code, and the value is another dictionary. The key for the inner dictionary is the medication name corresponding to that phonetic code, and the value is a list of the medication's common name.
 
-### Match misspelt word to standard medication bank using phonetic algorithm only
+### Match Misspelt Word to Standard Medication Bank Using Phonetic Algorithm Only
 &nbsp;&nbsp;&nbsp;&nbsp; With the phonetic bank, we can now develop a function matching the misspelt word to standard medication.
 
 ```
@@ -244,11 +244,11 @@ def word_process_meta(misspelled: str, bank: dict) -> str:
 ```
 &nbsp;&nbsp;&nbsp;&nbsp; From the above example, we can see that 'Zoloft' is caught by our algorithm, and matched to 'Zoloft' in the phonetic bank. The function then changes the original 'Zoloft' to '[sertraline/Zoloft]', which contains Zoloft's common name, and the corrected word is surrounded by a square bracket, thus, making it easy to identify.
 
-### Match misspelt word to standard medication bank combination of fuzz and phonetic
-&nbsp;&nbsp;&nbsp;&nbsp; We will now develop a function that uses a combination of fuzz and phonetic method to match words. For fuzz, we will be using the optimal threshold of 80.
+### Match Misspelt Word to Standard Medication Bank using Combination of Fuzzy and Phonetic Algorithm
+&nbsp;&nbsp;&nbsp;&nbsp; We will now develop a function that uses a combination of Fuzzy and phonetic method to match words. For Fuzzy, we will be using the optimal threshold of 80.
 
 ```
-# NOTICE: the function word_process() is developed in CSC494, that uses only fuzz to match word
+# NOTICE: the function word_process() is developed in CSC494, that uses only Fuzzy to match word
 
 def word_process_combine(misspelled: str, phonetic_bank: dict, psy_bank: list, gen_bank: list, threshold: int) -> str:
     # initalize tokens
@@ -266,7 +266,7 @@ def word_process_combine(misspelled: str, phonetic_bank: dict, psy_bank: list, g
         if meta_code in phonetic_bank:
             result[word] = word_process_meta(word, bank)
 
-        # if there is no metaphone code in phonetic bank, we will use fuzz
+        # if there is no metaphone code in phonetic bank, we will use Fuzzy
         else:
             result[word] = word_process(word, psy_bank, gen_bank, threshold)
 
@@ -276,13 +276,13 @@ def word_process_combine(misspelled: str, phonetic_bank: dict, psy_bank: list, g
             tokens[i] = '[' + result[tokens[i]] + ']'
     return ' '.join(tokens)
 ```
-&nbsp;&nbsp;&nbsp;&nbsp; This function outputs the same data format as word_process_meta(). The function first checker whether there is a match using the phonetic method, if there is no match, then it will check whether there is a match using the fuzz method. 
+&nbsp;&nbsp;&nbsp;&nbsp; This function outputs the same data format as word_process_meta(). The function first checker whether there is a match using the phonetic method, if there is no match, then it will check whether there is a match using the Fuzzy method. 
 
 ## Correction
 
 
-### Correction use Phonetic algorithm only
- &nbsp;&nbsp;&nbsp;&nbsp; We will first perform out alogrithm with phonetric algorithm only.
+### Correction using Phonetic Algorithm Only
+ &nbsp;&nbsp;&nbsp;&nbsp; We will first perform our alogrithm with phonetric algorithm only.
  ```
  # NOTICE: From csc494
  # All the raw misspelled data store in variable misspelled_data. 
@@ -306,7 +306,7 @@ True Positive: 137,
 True Negative: 451,
  ```
 
-### Correction use both algorithm
+### Correction using Combined Algorithm
  &nbsp;&nbsp;&nbsp;&nbsp; We will first perform out alogrithm with both methods.
  ```
 pair = {}
@@ -325,9 +325,13 @@ True Positive: 171,
 True Negative: 425,
  ```
 
-### Identify problem
-&nbsp;&nbsp;&nbsp;&nbsp; From the above output, we can see that both accuracies are low. 
-&nbsp;&nbsp;&nbsp;&nbsp; Looking into the incorrect output, we identified situations like 
+### Error Analysis and Identify Problems
+&nbsp;&nbsp;&nbsp;&nbsp; From the above output, we can see that both accuracies are low because of the high false positive rate. With a detailed review of the false positive error generated by both algorithms, we found that we could classify the false positive error reasons into two categories:
+
+1. The word is a general English word like oral, none, and hit - 82 occurrences
+2. The word is not a general English word nor a medication word like PMS, CBT, and teva - 33 occurrences
+
+&nbsp;&nbsp;&nbsp;&nbsp; Since we get a high error rate due to the reason of incorrectly identified general English words, we would look into those cases and identify situations like 
 ```
 Misspelled Word: 'None now'; 
 correction using program: '[neon/ne/neón/néon] now'; 
@@ -337,10 +341,10 @@ Misspelled Word: 'Many of my medications are split into two doses';
 correction using program: 'Many of my medications are split [indium/indio] two doses'; 
 correct correction: 'Many of my medications are split into two doses' 
 ```
-&nbsp;&nbsp;&nbsp;&nbsp; We can see that in lots of situations, a common general word like 'none' and 'into' are correct, which causes us to have a high false positive rate. To solve this problem, we decided to incorporate a general word bank, in which if there is any word in the general word bank, we stop trying to correct them.
+&nbsp;&nbsp;&nbsp;&nbsp; We can see that in 82 occurences, a common general word like 'none' and 'into' are corrected, which causes us to have a high false positive rate. To solve this problem, we decided to incorporate a general word bank, in which if there is any word in the general word bank, we stop trying to correct them.
 
-## General word bank
-&nbsp;&nbsp;&nbsp;&nbsp; We get the general word bank from BNC/COCA word family lists (Nation 2017), which it composed of the 10,000 most common words in English, and do not contain any medication name, which avoids the possible risk of increased false negative rate.
+## General Word Bank
+&nbsp;&nbsp;&nbsp;&nbsp; We get the general word bank from BNC/COCA word family lists (Nation 2017), which is composed of the 10,000 most common words in English, and do not contain any medication name, which avoids the possible risk of increased false negative rate.
 
 &nbsp;&nbsp;&nbsp;&nbsp; We load in the general word bank
 ```
@@ -369,7 +373,7 @@ def load_gen_word():
 ```
 &nbsp;&nbsp;&nbsp;&nbsp; Thus, we now have all the 10000 store into the list gen_word.
 
-## Correction with general word bank
+## Correction with General Word Bank
 With the general word bank, we now need to incorporate this bank into our code, where we want to ignore to correct any word if that word is in the general word bank. In order to accomplish this, we can simply add if condition:
 ```
 for word in tokens:
@@ -378,7 +382,7 @@ for word in tokens:
         continue
 ```
 
-### Correction use Phonetic algorithm only
+### Correction using Phonetic Algorithm Only
 &nbsp;&nbsp;&nbsp;&nbsp; We now re-run previous code, and we get
 ```
 Total number of word: 200,
@@ -390,35 +394,52 @@ False Negative: 49,
 True Positive: 139,
 True Negative: 490,
 ```
-### Correction use fuzz algorithm only
-&nbsp;&nbsp;&nbsp;&nbsp; Using fuzz algorithm only, we get
+### Correction using Fuzzy Algorithm Only
+&nbsp;&nbsp;&nbsp;&nbsp; Using Fuzzy algorithm only, we get
 ```
 Total number of word: 200,
-Number of correct: 152,
-Number of incorrect: 48,
-Accuracy: 0.76,
-False Positive: 57,
-False Negative: 15,
-True Positive: 175,
-True Negative: 480,
+Number of correct: 157,
+Number of incorrect: 43,
+Accuracy: 0.785,
+False Positive: 47,
+False Negative: 7,
+True Positive: 181,
+True Negative: 486,
 ```
-### Correction use both algorithm
+### Correction using Combined Algorithm
 &nbsp;&nbsp;&nbsp;&nbsp; For both algorithm, we get
 ```
 Total number of word: 200,
-Number of correct: 153,
-Number of incorrect: 47,
-Accuracy: 0.765,
-False Positive: 58,
-False Negative: 21,
-True Positive: 169,
-True Negative: 478,
+Number of correct: 155,
+Number of incorrect: 45,
+Accuracy: 0.775,
+False Positive: 44,
+False Negative: 5,
+True Positive: 184,
+True Negative: 490,
 ```
 
-# Discussion
-&nbsp;&nbsp;&nbsp;&nbsp; From where we have for CSC494, this project incorporated the considering of word pronunciation in matching two words. We have used a combination of string matching techniques like string different (fuzz method) and string pronunciation (Phonetic method). For the two phonetic methods, we chose to use Metaphone instead of Soundex since Soudex has too many duplicate codes for our medication bank. Also, we added another consideration of general words, in which to decrease the false positive rate, we will ignore to match any word that is in the general everyday English word bank. With the general word bank, our accuracy for using a combination of methods increased from 64% to 76.5%, which is a one-third decrease in error. With the two updates, our algorithm's accuracy had increased from 72.5% (accuracy for CSC494, where we use fuzz only) to 67% (use Metaphone only), 76% (use fuzz only), and 76.5% (use a combination of both methods). From our result, the best accuracy we got, 76.5%, had a decrease of 14.5% in error rate. 
+### Error Analysis
+For correction using Fuzzy algorithm only: 
+- False Postivie error due to general English word: 31 (54%)
+- False Positive error due to non-general Enlsigh word: 16 (28%)
+- False Negative error: 7 (13%)
+- Incorrect Correction:  3 (5%)
 
-&nbsp;&nbsp;&nbsp;&nbsp; Although we do have a large decrease in error rate, we still could consider how to improve our accuracy further. Another possible solution to improve accuracy is to find a better general word bank since our current one still missing some common English words like daily, been, taken, times, past, etc. With a larger general word bank, we expect an increase in overall accuracy and a decrease in the false positive rate.
+  
+For correction using combined algorithm: 
+- False Postivie error due to general English word: 14 (26%)
+- False Positive error due to non-general Enlsigh word: 30 (57%)
+- False Negative error: 5 (9%)
+- Incorrect Correction:  4 (8%)
+
+![Venn](Venn.png)
+**Figure 1. Venn diagram** of the number of errors generated using Fuzzy (only Fuzzy algorithm) and Combined (combination of Fuzzy and phonetic algorithm) with **A** displayed false positive errors due to general English word, **B** displayed false positive errors due to non-general English word, **C** displayed false negative error, and **D** displayed the incorrect correction.
+
+# Discussion
+&nbsp;&nbsp;&nbsp;&nbsp; From where we have for CSC494, this project incorporated the considering of word pronunciation in matching two words. We have used a combination of string matching techniques like string different (Fuzzy method) and string pronunciation (Phonetic method). For the two phonetic methods, we chose to use Metaphone instead of Soundex since Soudex has too many duplicate codes for our medication bank. Also, we added another consideration of general words, in which to decrease the false positive rate, we will ignore to match any word that is in the general everyday English word bank. With the general word bank, our accuracy for using a combination of methods increased from 64% to 78.5%, which is a one-third decrease in error. With the two updates, our algorithm's accuracy had changed from 72.5% (accuracy for CSC494, where we use Fuzzy only) to 67% (use Metaphone only), 78.5% (use Fuzzy only), and 77.5% (use a combination of both methods). From our result, the best accuracy we got, 78.5%, had a decrease of 40.3% in error rate. 
+
+&nbsp;&nbsp;&nbsp;&nbsp; For the error, the majority of the error reason due to false positive error, 82% for Fuzzy only algorithm and 83% for the combined algorithm. Also, although we get a similar accuracy for using Fuzzy only and using a combination of both methods, their error reason is very different. As we can observe from Figure 1, the majority of Fuzzy method's errors are because of general English words (54%) whereas the majority of the combined method's errors are because of non-general English words (57%). Therefore, the next step to improve our accuracy further would need to focus on decreasing the false positive error rate. Since over half the number of Fuzzy algorithm errors is due to incorrect correction of general English words, we should consider finding a better general word bank since our current one still missing some common English words like daily, been, taken, times, past, etc. With a larger general word bank, we expect a large increment in the overall accuracy of the algorithm that used Fuzzy only. Moreover, one possible solution to decrease the error rate due to non-general English words (words like PMT, TEVA, APO, etc) would be the incorporation of regular expression since a common pattern that could be observed from all of that word would be capital letters and have a length of three to four. With those improvements for the next step, we would expect a further decrease in error rate by an additional 50%.
 
 &nbsp;&nbsp;&nbsp;&nbsp; In conclusion, the auto-correction algorithm represents a significant improvement towards ensuring the integrity and accuracy of medication data within the IMPACT pharmacogenetics study database. The algorithm also provides the foundation for any future related data analysis and computation.
 
@@ -429,7 +450,7 @@ Levenshtein, V. (1965). Binary codes capable of correcting spurious insertions a
 
 Russell, R. C., & Odell, M. K. (1918). Indexing-System (U.S. Patent No. 1261167). United States Patent and Trademark Office.
 
-Mouselimis, L. (2021). fuzzywuzzyR: Fuzzy String Matching. R package version 1.0.5. 
+Mouselimis, L. (2021). FuzzyywuzzyR: Fuzzyy String Matching. R package version 1.0.5. 
 
 Hanging on the Metaphone, Lawrence Philips. Computer Language, Vol. 7, No. 12 (December), 1990.
 
